@@ -10,6 +10,7 @@ password.value = localStorage.getItem("password") || "";
 if (localStorage.getItem("theme") === "light") {
   document.body.classList.add("light");
 }
+updateThemeIcon();
 
 /* ---------- сохранение при изменении ---------- */
 login.addEventListener("input", () =>
@@ -20,17 +21,27 @@ password.addEventListener("input", () =>
   localStorage.setItem("password", password.value)
 );
 
+/* ---------- переменные для таймера ---------- */
+let timeoutId = null;
+
 /* ---------- копирование + автосброс ---------- */
 document.querySelectorAll("button[data-copy]").forEach(btn => {
   btn.addEventListener("click", () => {
-    statuses.forEach(s => s.classList.remove("show"));
+    // сброс всех индикаторов и таймера
+    clearTimeout(timeoutId);
+    document.querySelectorAll(".status").forEach(s => s.classList.remove("show"));
 
     const id = btn.dataset.copy;
-    const value = document.getElementById(id).value;
+    const input = document.getElementById(id);
     const status = document.getElementById("status-" + id);
 
-    navigator.clipboard.writeText(value).then(() => {
+    navigator.clipboard.writeText(input.value).then(() => {
       status.classList.add("show");
+
+      // через 1 секунду убираем класс show — срабатывает плавный переход opacity
+      timeoutId = setTimeout(() => {
+        status.classList.remove("show");
+      }, 1000);
     });
   });
 });
@@ -41,13 +52,6 @@ function updateThemeIcon() {
     document.body.classList.contains("light") ? "☀️" : "🌙";
 }
 
-/* загрузка темы */
-if (localStorage.getItem("theme") === "light") {
-  document.body.classList.add("light");
-}
-updateThemeIcon();
-
-/* переключение */
 themeBtn.addEventListener("click", () => {
   document.body.classList.toggle("light");
   localStorage.setItem(
@@ -56,4 +60,3 @@ themeBtn.addEventListener("click", () => {
   );
   updateThemeIcon();
 });
-
