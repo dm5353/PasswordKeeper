@@ -60,3 +60,59 @@ themeBtn.addEventListener("click", () => {
   );
   updateThemeIcon();
 });
+
+/* ---------- обновление ---------- */
+checkForUpdate();
+
+async function checkForUpdate() {
+  try {
+    const current = chrome.runtime.getManifest().version;
+
+    const res = await fetch(
+      "https://raw.githubusercontent.com/dm5353/PasswordKeeper/main/version.json",
+      { cache: "no-store" }
+    );
+    const data = await res.json();
+
+    if (isNewerVersion(data.version, current)) {
+      showUpdate(data.version, data.url);
+    }
+  } catch {
+    // молча — popup не должен ломаться
+  }
+}
+
+function isNewerVersion(remote, local) {
+  const r = remote.split(".").map(Number);
+  const l = local.split(".").map(Number);
+
+  for (let i = 0; i < Math.max(r.length, l.length); i++) {
+    if ((r[i] || 0) > (l[i] || 0)) return true;
+    if ((r[i] || 0) < (l[i] || 0)) return false;
+  }
+  return false;
+}
+
+function isNewerVersion(remote, local) {
+  const r = remote.split(".").map(Number);
+  const l = local.split(".").map(Number);
+
+  for (let i = 0; i < Math.max(r.length, l.length); i++) {
+    if ((r[i] || 0) > (l[i] || 0)) return true;
+    if ((r[i] || 0) < (l[i] || 0)) return false;
+  }
+  return false;
+}
+
+function showUpdate(version, url) {
+  const box = document.getElementById("updateBox");
+  const text = document.getElementById("updateText");
+  const btn = document.getElementById("updateBtn");
+
+  text.textContent = `Доступна версия ${version}`;
+  box.classList.remove("hidden");
+
+  btn.onclick = () => {
+    chrome.tabs.create({ url });
+  };
+}
