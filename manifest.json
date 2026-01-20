@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Password keeper",
-  "version": "4.0",
+  "version": "4.5",
   "action": {
     "default_popup": "main.html",
     "default_icon": "icon.png"
