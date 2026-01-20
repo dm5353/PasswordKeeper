@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<button id="themeToggle" class="emoji-btn" style="left: 1%;">🌙</button>
+<div class="header">
+  <a href="https://github.com/dm5353/PasswordKeeper" target="_blank" rel="noopener noreferrer">Password keeper</a>
+</div>
+<button id="showSticker" class="emoji-btn">📌</button>
+
+<div class="field">
+  <label>Логин</label>
+  <div class="row">
+    <input id="login">
+    <button data-copy="login">📋</button>
+  </div>
+  <div class="status" id="status-login">Скопировано</div>
+</div>
+
+<div class="field">
+  <label>Пароль</label>
+  <div class="row">
+    <input id="password" type="password">
+    <button data-copy="password">📋</button>
+  </div>
+  <div class="status" id="status-password">Скопировано</div>
+</div>
+
+<div id="updateBox" class="update hidden">
+  <span id="updateText"></span>
+  <button id="updateBtn">Обновить</button>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

@@ -1,28 +1,53 @@
 const login = document.getElementById("login");
 const password = document.getElementById("password");
 const themeBtn = document.getElementById("themeToggle");
-const statuses = document.querySelectorAll(".status");
+let timeoutId = null;
 
-/* ---------- загрузка сохранённых данных ---------- */
-login.value = localStorage.getItem("login") || "";
-password.value = localStorage.getItem("password") || "";
+/* ---------- загрузка ---------- */
+chrome.storage.local.get(["login", "password", "theme"], data => {
+  login.value = data.login || "";
+  password.value = data.password || "";
+  if (data.theme === "light") document.body.classList.add("light");
+  updateThemeIcon();
+});
 
-if (localStorage.getItem("theme") === "light") {
-  document.body.classList.add("light");
-}
-updateThemeIcon();
-
-/* ---------- сохранение при изменении ---------- */
+/* ---------- сохранение ---------- */
 login.addEventListener("input", () =>
-  localStorage.setItem("login", login.value)
+  chrome.storage.local.set({ login: login.value })
 );
 
 password.addEventListener("input", () =>
-  localStorage.setItem("password", password.value)
+  chrome.storage.local.set({ password: password.value })
 );
 
-/* ---------- переменные для таймера ---------- */
-let timeoutId = null;
+/* ---------- тема ---------- */
+function updateThemeIcon() {
+  themeBtn.textContent =
+    document.body.classList.contains("light") ? "☀️" : "🌙";
+}
+
+themeBtn.onclick = () => {
+  document.body.classList.toggle("light");
+  chrome.storage.local.set({
+    theme: document.body.classList.contains("light") ? "light" : "dark"
+  });
+  updateThemeIcon();
+};
+
+/* ---------- кнопка стикера ---------- */
+document.getElementById("showSticker").onclick = () => {
+  chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
+    if (!tabs[0]?.id) return;
+    chrome.tabs.sendMessage(tabs[0].id, { 
+      action: "toggleSticker",
+      login: login.value,
+      password: password.value,
+      theme: document.body.classList.contains("light") ? "light" : "dark"
+    }, () => {
+      chrome.runtime.lastError;
+    });
+  });
+};
 
 /* ---------- копирование + автосброс ---------- */
 document.querySelectorAll("button[data-copy]").forEach(btn => {
@@ -44,21 +69,6 @@ document.querySelectorAll("button[data-copy]").forEach(btn => {
       }, 1000);
     });
   });
-});
-
-/* ---------- тема ---------- */
-function updateThemeIcon() {
-  themeBtn.textContent =
-    document.body.classList.contains("light") ? "☀️" : "🌙";
-}
-
-themeBtn.addEventListener("click", () => {
-  document.body.classList.toggle("light");
-  localStorage.setItem(
-    "theme",
-    document.body.classList.contains("light") ? "light" : "dark"
-  );
-  updateThemeIcon();
 });
 
 /* ---------- обновление ---------- */
@@ -93,17 +103,6 @@ function isNewerVersion(remote, local) {
   return false;
 }
 
-function isNewerVersion(remote, local) {
-  const r = remote.split(".").map(Number);
-  const l = local.split(".").map(Number);
-
-  for (let i = 0; i < Math.max(r.length, l.length); i++) {
-    if ((r[i] || 0) > (l[i] || 0)) return true;
-    if ((r[i] || 0) < (l[i] || 0)) return false;
-  }
-  return false;
-}
-
 function showUpdate(version, url) {
   const box = document.getElementById("updateBox");
   const text = document.getElementById("updateText");
@@ -116,3 +115,4 @@ function showUpdate(version, url) {
     chrome.tabs.create({ url });
   };
 }
+/* ---------- конец файла script.js ---------- */
